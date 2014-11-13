@@ -180,10 +180,10 @@ function precompile_assets {
   then
       echo "Detected manifest.yml, assuming assets were compiled locally"
   else
-      if ( env RAILS_ENV=<%= ENV["RAILS_ENV"] || ENV["RACK_ENV"] %> jruby $JRUBY_OPTS -S bin/rake --dry-run --silent assets:precompile > /dev/null 2>&1 )
+      if ( env jruby $JRUBY_OPTS -S bin/rake --dry-run --silent assets:precompile > /dev/null 2>&1 )
       then
           echo "-----> Precompiling assets"
-          env DATABASE_URL=postgres://user:pass@127.0.0.1/dbname RAILS_ENV=<%= ENV["RAILS_ENV"] || ENV["RACK_ENV"] %> jruby $JRUBY_OPTS -S bin/rake assets:precompile 2>&1 | indent
+          env DATABASE_URL=postgres://user:pass@127.0.0.1/dbname jruby $JRUBY_OPTS -S bin/rake assets:precompile 2>&1 | indent
       else
           echo "Precompile assets dry run failed!"
       fi
@@ -196,6 +196,8 @@ VERSION=`grep ^ruby $BUILD_DIR/Gemfile | sed 's/.*version[^0-9]*\([0-9\.]*\).*/\
 MODE=`grep ^ruby $BUILD_DIR/Gemfile | cut -c 7-9`
 
 export JRUBY_OPTS="--$MODE -J-Xmx400m -Xcext.enabled=true -J-XX:+UseCompressedOops -J-noverify"
+export RAILS_ENV=production
+export RACK_ENV=production
 
 download_and_install_jdk
 download_jruby_and_install_default_gems
